@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
@@ -35,3 +36,31 @@
 //     }
 //   }
 // }
+import '@badeball/cypress-cucumber-preprocessor';
+
+declare global {
+    namespace Cypress {
+        interface Chainable<Subject> {
+            getByCy: typeof getByCy
+            logout: typeof logout
+            login: typeof login
+        }
+    }
+}
+function getByCy(field: string ) {
+    return cy.get(`[placeholder=${field}]`,{timeout:40000})
+}
+
+function logout() {
+    cy.get('.oxd-userdropdown-tab').click({ force: true });
+    return cy.get('.oxd-dropdown-menu',{timeout:40000}).contains('Logout').click({ force: true });
+}
+function login(username: string, password: string) {
+    cy.getByCy('Username').type(username);
+    cy.getByCy('Password').type(password);
+    cy.get('button').click({ force: true });
+    return cy.get('.oxd-topbar-header-title').contains("Dashboard")
+}
+Cypress.Commands.add('getByCy', getByCy)
+Cypress.Commands.add('logout', logout)
+Cypress.Commands.add('login', login)
